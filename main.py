@@ -10,11 +10,10 @@ app = Flask(
 )
 socket = SocketIO(app, cors_allowed_origins="*")
 
-
-
 @app.route("/")
 def index():
-    return render_template("index.html")
+    #return render_template("index.html")
+    return "Hello World!"
 
 if __name__ == "__main__":
-    socket.run(app, host="localhost", port=80)
+    socket.run(app, host="localhost", port=8000)
