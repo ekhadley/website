@@ -8,7 +8,7 @@ app = Flask(
     template_folder="website/templates",
     static_folder="website/static",
 )
-socket = SocketIO(app, cors_allowed_origins="*")
+#socket = SocketIO(app, cors_allowed_origins="*")
 
 @app.route("/")
 def index():
@@ -16,4 +16,5 @@ def index():
     return "Hello World!"
 
 if __name__ == "__main__":
-    socket.run(app, host="localhost", port=8000)
+    #socket.run(app, host="localhost", port=8000)
+    app.run(host="localhost", port=8000)
