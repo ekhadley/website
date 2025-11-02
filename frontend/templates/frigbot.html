@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frigbot Logs - WGMN</title>
+    <title>Frigbot Status</title>
     <style>
         * {
             margin: 0;
@@ -24,6 +24,29 @@
         h1 {
             font-size: 24px;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-indicator.active {
+            background-color: #4caf50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+        }
+        .status-indicator.inactive {
+            background-color: #f44336;
+            box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+        }
+        .status-subhead {
+            font-size: 14px;
+            color: #b0b0b0;
+            margin-bottom: 10px;
+            font-weight: normal;
         }
         .nav-link {
             color: #4a9eff;
@@ -248,7 +271,13 @@
 </head>
 <body>
     <div class="header">
-        <h1>Frigbot Logs</h1>
+        <h1>
+            Frigbot Status:
+            <span class="status-indicator {% if systemd_is_active %}active{% else %}inactive{% endif %}"></span>
+        </h1>
+        {% if systemd_is_active and systemd_start_time %}
+        <div class="status-subhead">started at {{ systemd_start_time }} ({{ systemd_time_since }})</div>
+        {% endif %}
         <a href="/" class="nav-link">← Back to Home</a>
     </div>
     <div class="main-content">

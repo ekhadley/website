@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Flask-based web application for WGMN. The project uses Python 3.13+ with uv for dependency management.
+This is a Flask-based web application and homepage for ekhadley. The project uses Python 3.13+ with uv for dependency management.
 
 ## Development Setup
 
