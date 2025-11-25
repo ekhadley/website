@@ -7,7 +7,8 @@ const state = {
     hasMore: true,
     totalLines: 0,
     chunkSize: 100,
-    allRows: [] // Store all rendered rows for filtering
+    allRows: [], // Store all rendered rows for filtering
+    isFirstLoad: true // Track if this is the very first chunk load
 };
 
 // Initialize on page load
@@ -73,12 +74,14 @@ async function loadLogChunk() {
             state.currentOffset += data.lines.length;
 
             // Preserve scroll position (only if not the first load)
-            if (scrollTopBefore > 0) {
+            if (state.isFirstLoad) {
+                // First load: scroll to bottom to show newest logs
+                logContainer.scrollTop = logContainer.scrollHeight;
+                state.isFirstLoad = false;
+            } else {
+                // Subsequent loads: preserve scroll position
                 const scrollHeightAfter = logContainer.scrollHeight;
                 logContainer.scrollTop = scrollTopBefore + (scrollHeightAfter - scrollHeightBefore);
-            } else {
-                // First load: scroll to bottom
-                logContainer.scrollTop = logContainer.scrollHeight;
             }
 
             // Update stats
