@@ -9,17 +9,22 @@ import flask
 
 LOG_FILE_DIR = "/home/ek/wgmn/frigbot/logs"
 
+def get_latest_log_file():
+    """Returns the path to the most recent log file, or None if not found."""
+    try:
+        jsonl_files = glob.glob(os.path.join(LOG_FILE_DIR, "frigbot_*.jsonl"))
+        if not jsonl_files:
+            return None
+        return sorted(jsonl_files, reverse=True)[0]
+    except Exception:
+        return None
+
 def load_log_content():
     try:
-        # Find all .jsonl files in the logs directory
-        jsonl_files = glob.glob(os.path.join(LOG_FILE_DIR, "frigbot_*.jsonl"))
-        
-        if not jsonl_files:
+        latest_log_file = get_latest_log_file()
+        if not latest_log_file:
             return "No log files found."
-        
-        # Sort by filename (descending) to get the most recent
-        latest_log_file = sorted(jsonl_files, reverse=True)[0]
-        
+
         # Read and return the contents
         with open(latest_log_file, "r") as f:
             return f.read()
@@ -27,6 +32,64 @@ def load_log_content():
         return "Log file not found."
     except Exception as e:
         return f"Error reading log file: {str(e)}"
+
+def get_log_chunk(offset=0, limit=100):
+    """
+    Read a chunk of log lines from the end of the file.
+
+    Args:
+        offset: Number of lines from the end to skip (0 = most recent)
+        limit: Maximum number of lines to return
+
+    Returns:
+        dict with:
+            - lines: List of log line strings
+            - has_more: Boolean indicating if more logs exist
+            - total_lines: Total number of lines in file
+            - offset: The offset used (for next request)
+    """
+    try:
+        latest_log_file = get_latest_log_file()
+        if not latest_log_file:
+            return {"lines": [], "has_more": False, "total_lines": 0, "offset": 0, "error": "No log files found."}
+
+        # Read all lines from the file
+        with open(latest_log_file, "r") as f:
+            all_lines = f.readlines()
+
+        total_lines = len(all_lines)
+
+        # Calculate start and end positions (reading from the end)
+        # offset=0 means start from the very end
+        # offset=100 means skip the last 100 lines
+        end_index = total_lines - offset
+        start_index = max(0, end_index - limit)
+
+        # Extract the chunk (reversed so newest are first)
+        chunk_lines = all_lines[start_index:end_index]
+        chunk_lines.reverse()  # Newest first
+
+        # Clean up lines (strip newlines)
+        chunk_lines = [line.strip() for line in chunk_lines if line.strip()]
+
+        # Check if there are more logs before this chunk
+        has_more = start_index > 0
+
+        return {
+            "lines": chunk_lines,
+            "has_more": has_more,
+            "total_lines": total_lines,
+            "offset": offset
+        }
+
+    except Exception as e:
+        return {
+            "lines": [],
+            "has_more": False,
+            "total_lines": 0,
+            "offset": 0,
+            "error": f"Error reading log file: {str(e)}"
+        }
 
 def get_systemd_info():
     """
@@ -104,24 +167,25 @@ def format_time_since(start_time):
     return f"{days}d {hours}h {minutes}m {seconds}s"
 
 def route():
-    log_content = load_log_content()
+    # Don't load log content here - use lazy loading via API instead
+    log_content = ""
     systemd_info = get_systemd_info()
-    
+
     is_active = False
     start_time = None
     start_time_formatted = None
     time_since = None
-    
+
     if systemd_info:
         is_active, start_time = systemd_info
         if start_time:
             start_time_formatted = start_time.strftime("%Y-%m-%d %H:%M:%S")
             time_since = format_time_since(start_time)
-    
+
     return flask.render_template(
-        "frigbot.html", 
-        log_content=log_content, 
-        systemd_is_active=is_active, 
+        "frigbot.html",
+        log_content=log_content,
+        systemd_is_active=is_active,
         systemd_start_time=start_time_formatted,
         systemd_time_since=time_since
     )

@@ -8,8 +8,8 @@ import frigbot
 
 app = Flask(
     __name__,
-    template_folder="/home/ek/wgmn/website/frontend/templates",
-    static_folder="/home/ek/wgmn/website/frontend/static",
+    template_folder="./frontend/templates",
+    static_folder="./frontend/static",
 )
 #socket = SocketIO(app, cors_allowed_origins="*")
 
@@ -21,6 +21,29 @@ def index():
 @app.route("/frigbot")
 def frigbot_route():
     return frigbot.route()
+
+@app.route("/api/friglogs/chunk")
+def frigbot_logs_chunk():
+    """API endpoint to fetch log chunks for lazy loading."""
+    try:
+        offset = int(flask.request.args.get('offset', 0))
+        limit = int(flask.request.args.get('limit', 100))
+
+        # Validate parameters
+        offset = max(0, offset)
+        limit = max(1, min(limit, 500))  # Cap at 500 lines per request
+
+        result = frigbot.get_log_chunk(offset=offset, limit=limit)
+        return flask.jsonify(result)
+
+    except ValueError:
+        return flask.jsonify({
+            "lines": [],
+            "has_more": False,
+            "total_lines": 0,
+            "offset": 0,
+            "error": "Invalid offset or limit parameter"
+        }), 400
 
 if __name__ == "__main__":
     #socket.run(app, host="localhost", port=8000)
