@@ -1,9 +1,7 @@
-import sys
-from pathlib import Path
 import os
 
 import flask
-from flask import Flask, url_for, abort
+from flask import Flask, abort
 
 import frigbot
 
@@ -12,7 +10,7 @@ app = Flask(
     template_folder="./frontend/templates",
     static_folder="./frontend/static",
 )
-#socket = SocketIO(app, cors_allowed_origins="*")
+auth_token = os.getenv("AUTH")
 
 @app.route("/")
 def index():
@@ -26,11 +24,8 @@ def frigbot_route():
 @app.route("/api/friglogs/chunk")
 def frigbot_logs_chunk():
     """API endpoint to fetch log chunks for lazy loading."""
-    # Check authorization token
-    SECRET_TOKEN = os.getenv('FRIGBOT_SECRET', 'YOUR_SECRET_TOKEN_HERE')
     provided_key = flask.request.args.get('key')
-
-    if provided_key != SECRET_TOKEN:
+    if provided_key != auth_token:
         abort(403)
 
     try:
@@ -54,5 +49,4 @@ def frigbot_logs_chunk():
         }), 400
 
 if __name__ == "__main__":
-    #socket.run(app, host="localhost", port=8000)
     app.run(host="localhost", port=8000)

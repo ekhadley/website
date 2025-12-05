@@ -1,0 +1,13 @@
+[Unit]
+Description=Cloudflare Tunnel
+After=network.target
+
+[Service]
+Type=simple
+User=ek
+ExecStart=cloudflared tunnel run vex_tunnel
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
