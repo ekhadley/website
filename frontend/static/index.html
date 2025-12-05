@@ -52,6 +52,15 @@
 </head>
 <body>
     <h1>ekhadley.net</h1>
-    <p><a href="/frigbot", class="nav-link">Frigbot Monitor</a></p>
+    <p><a href="/frigbot" id="frigbot-link" class="nav-link">Frigbot Monitor</a></p>
+    <script>
+        // Preserve key parameter when navigating to frigbot monitor
+        const urlParams = new URLSearchParams(window.location.search);
+        const key = urlParams.get('key');
+        if (key) {
+            const frigbotLink = document.getElementById('frigbot-link');
+            frigbotLink.href = `/frigbot?key=${encodeURIComponent(key)}`;
+        }
+    </script>
 </body>
 </html>

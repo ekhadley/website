@@ -15,6 +15,16 @@ const state = {
 window.addEventListener('load', function() {
     const logContainer = document.querySelector('.log-container');
 
+    // Preserve key parameter in home link
+    const urlParams = new URLSearchParams(window.location.search);
+    const key = urlParams.get('key');
+    if (key) {
+        const homeLink = document.getElementById('home-link');
+        if (homeLink) {
+            homeLink.href = `/?key=${encodeURIComponent(key)}`;
+        }
+    }
+
     // Add loading indicator
     const loadingIndicator = document.createElement('div');
     loadingIndicator.id = 'loading-indicator';
