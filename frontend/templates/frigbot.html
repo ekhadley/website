@@ -278,7 +278,7 @@
         {% if systemd_is_active and systemd_start_time %}
         <div class="status-subhead">started at {{ systemd_start_time }} ({{ systemd_time_since }})</div>
         {% endif %}
-        <a href="/" class="nav-link">← Back to Home</a>
+        <a href="/" id="home-link" class="nav-link">← Back to Home</a>
     </div>
     <div class="main-content">
         <div class="left-sidebar">

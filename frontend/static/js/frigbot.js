@@ -15,6 +15,16 @@ const state = {
 window.addEventListener('load', function() {
     const logContainer = document.querySelector('.log-container');
 
+    // Preserve key parameter in home link
+    const urlParams = new URLSearchParams(window.location.search);
+    const key = urlParams.get('key');
+    if (key) {
+        const homeLink = document.getElementById('home-link');
+        if (homeLink) {
+            homeLink.href = `/?key=${encodeURIComponent(key)}`;
+        }
+    }
+
     // Add loading indicator
     const loadingIndicator = document.createElement('div');
     loadingIndicator.id = 'loading-indicator';
@@ -42,7 +52,11 @@ async function loadLogChunk() {
     showLoadingIndicator(true);
 
     try {
-        const response = await fetch(`/api/friglogs/chunk?offset=${state.currentOffset}&limit=${state.chunkSize}`);
+        // Extract the key parameter from the current page URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const key = urlParams.get('key') || '';
+
+        const response = await fetch(`/api/friglogs/chunk?offset=${state.currentOffset}&limit=${state.chunkSize}&key=${encodeURIComponent(key)}`);
         const data = await response.json();
 
         if (data.error) {

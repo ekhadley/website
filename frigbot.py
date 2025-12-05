@@ -6,8 +6,10 @@ import subprocess
 from datetime import datetime
 
 import flask
+from flask import abort
 
 LOG_FILE_DIR = "/home/ek/wgmn/frigbot/logs"
+auth_token = os.getenv("AUTH")
 
 def get_latest_log_file():
     """Returns the path to the most recent log file, or None if not found."""
@@ -147,11 +149,7 @@ def get_systemd_info():
         # Any other error
         return None
 
-
 def format_time_since(start_time):
-    """
-    Formats a time difference into a human-readable string like "2h 15m" or "3d 4h"
-    """
     if not start_time:
         return None
     
@@ -167,6 +165,11 @@ def format_time_since(start_time):
     return f"{days}d {hours}h {minutes}m {seconds}s"
 
 def route():
+    # Check authorization token
+    provided_key = flask.request.args.get('key')
+    if provided_key != auth_token:
+        abort(403)
+
     # Don't load log content here - use lazy loading via API instead
     log_content = ""
     systemd_info = get_systemd_info()
