@@ -1,8 +1,9 @@
 import sys
 from pathlib import Path
+import os
 
 import flask
-from flask import Flask, url_for
+from flask import Flask, url_for, abort
 
 import frigbot
 
@@ -25,6 +26,13 @@ def frigbot_route():
 @app.route("/api/friglogs/chunk")
 def frigbot_logs_chunk():
     """API endpoint to fetch log chunks for lazy loading."""
+    # Check authorization token
+    SECRET_TOKEN = os.getenv('FRIGBOT_SECRET', 'YOUR_SECRET_TOKEN_HERE')
+    provided_key = flask.request.args.get('key')
+
+    if provided_key != SECRET_TOKEN:
+        abort(403)
+
     try:
         offset = int(flask.request.args.get('offset', 0))
         limit = int(flask.request.args.get('limit', 100))

@@ -6,6 +6,7 @@ import subprocess
 from datetime import datetime
 
 import flask
+from flask import abort
 
 LOG_FILE_DIR = "/home/ek/wgmn/frigbot/logs"
 
@@ -167,6 +168,13 @@ def format_time_since(start_time):
     return f"{days}d {hours}h {minutes}m {seconds}s"
 
 def route():
+    # Check authorization token
+    SECRET_TOKEN = os.getenv('FRIGBOT_SECRET', 'YOUR_SECRET_TOKEN_HERE')
+    provided_key = flask.request.args.get('key')
+
+    if provided_key != SECRET_TOKEN:
+        abort(403)
+
     # Don't load log content here - use lazy loading via API instead
     log_content = ""
     systemd_info = get_systemd_info()
