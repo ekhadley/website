@@ -21,6 +21,13 @@ def index():
 def frigbot_route():
     return frigbot.route()
 
+@app.route("/kissyreport")
+def kissyreport():
+    provided_key = flask.request.args.get('key')
+    if provided_key != auth_token:
+        abort(403)
+    return flask.send_file("./frontend/static/kissyreport.html")
+
 @app.route("/api/friglogs/chunk")
 def frigbot_logs_chunk():
     """API endpoint to fetch log chunks for lazy loading."""
