@@ -104,12 +104,17 @@ def get_systemd_info():
         Returns None if there's an error querying the service.
     """
     try:
+        # Need XDG_RUNTIME_DIR for systemctl --user to work from gunicorn
+        env = os.environ.copy()
+        env['XDG_RUNTIME_DIR'] = f"/run/user/{os.getuid()}"
+
         # Query systemd for the service's ActiveState and ActiveEnterTimestamp
         result = subprocess.run(
             ['systemctl', '--user', 'show', 'frigbot.service', '--property=ActiveState,ActiveEnterTimestamp'],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
+            env=env
         )
         
         output = result.stdout.strip()
