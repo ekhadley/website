@@ -106,7 +106,7 @@ def get_systemd_info():
     try:
         # Query systemd for the service's ActiveState and ActiveEnterTimestamp
         result = subprocess.run(
-            ['systemctl', 'show', 'frigbot', '--property=ActiveState,ActiveEnterTimestamp'],
+            ['systemctl', '--user', 'show', 'frigbot.service', '--property=ActiveState,ActiveEnterTimestamp'],
             capture_output=True,
             text=True,
             check=True
