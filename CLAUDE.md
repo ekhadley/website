@@ -18,19 +18,24 @@ uv sync
 source .venv/bin/activate
 ```
 
+## Environment Variables
+
+- `AUTH` - Authentication token required for protected routes (`/frigbot`, `/kissyreport`, `/api/friglogs/chunk`). Pass as `?key=<token>` query parameter.
+
 ## Running the Application
 
 ```bash
 # Development server (localhost:8000)
-python app.py
+AUTH=your_token python app.py
 
 # Production server with Gunicorn
-gunicorn -w 4 -b 0.0.0.0:8000 app:app
+AUTH=your_token gunicorn -w 4 -b 0.0.0.0:8000 app:app
 ```
 
 ## Project Structure
 
 - `app.py` - Main Flask application entry point
+- `frigbot.py` - Frigbot log viewer module (log reading, systemd status, chunked API)
 - `frontend/static/` - Static assets (HTML, CSS, JS, images)
 - `frontend/templates/` - Jinja2 templates for rendered pages
 - `pyproject.toml` - Project dependencies and configuration
@@ -40,26 +45,27 @@ gunicorn -w 4 -b 0.0.0.0:8000 app:app
 
 ### Flask Application
 
-The Flask app (`app.py`) is configured with hardcoded absolute paths for template and static folders:
-- Templates: `/home/ek/wgmn/website/frontend/templates`
-- Static files: `/home/ek/wgmn/website/frontend/static`
-
-**Important**: When modifying Flask configuration, these paths may need to be updated to use relative paths or environment variables for better portability.
-
-### Frontend Serving
-
-The application uses a hybrid approach:
-- The root route (`/`) serves a static `index.html` file directly from `frontend/static/`
-- The `/friglogs` route uses Jinja2 template rendering to display logs from `/home/ek/wgmn/frigbot/logs/frigbot.log`
+The Flask app (`app.py`) uses relative paths for template and static folders:
+- Templates: `./frontend/templates`
+- Static files: `./frontend/static`
 
 ### Routes
 
 - `/` - Homepage (static HTML)
-- `/friglogs` - Log viewer for the frigbot Discord bot, reads and displays the entire log file with error handling
+- `/frigbot` - Log viewer for the frigbot Discord bot (requires auth). Displays systemd service status and lazy-loads logs via the chunk API.
+- `/kissyreport` - Static report page (requires auth)
+- `/api/friglogs/chunk` - JSON API for paginated log retrieval (requires auth). Supports `offset` and `limit` query params.
 
-### Socket.IO (Currently Disabled)
+### Frigbot Module
 
-The codebase includes Flask-SocketIO as a dependency and has commented-out socket initialization code in `app.py:12-20`. If real-time features are needed, this can be re-enabled.
+The `frigbot.py` module handles:
+- Reading JSONL log files from `/home/ek/wgmn/frigbot/logs/` (finds latest `frigbot_*.jsonl`)
+- Chunked log retrieval for lazy loading (newest-first ordering)
+- Querying frigbot systemd user service status via `systemctl --user`
+
+### Socket.IO
+
+Flask-SocketIO is included as a dependency but not currently used.
 
 ## Type Checking
 

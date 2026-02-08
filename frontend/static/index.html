@@ -12,47 +12,47 @@
         }
         body {
             font-family: 'Courier New', Courier, monospace;
-            background-color: #1e1e1e;
+            background-color: #121212;
             color: #d4d4d4;
-            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .header {
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #444;
+        .center {
+            text-align: center;
         }
         h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
+            font-size: 2.4rem;
+            font-weight: normal;
+            letter-spacing: 0.15em;
+            color: #e0e0e0;
+            margin-bottom: 2rem;
+        }
+        .divider {
+            width: 60px;
+            border: none;
+            border-top: 1px solid #444;
+            margin: 0 auto 1.6rem;
         }
         .nav-link {
-            color: #4a9eff;
+            color: #6a9fd8;
             text-decoration: none;
-            font-size: 18px;
+            font-size: 0.9rem;
+            letter-spacing: 0.08em;
+            transition: color 0.2s;
         }
         .nav-link:hover {
-            text-decoration: underline;
-        }
-        .log-container {
-            background-color: #252526;
-            border: 1px solid #444;
-            border-radius: 4px;
-            padding: 15px;
-            max-height: calc(100vh - 120px);
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-        .error {
-            color: #f48771;
+            color: #a0c8f0;
         }
     </style>
 </head>
 <body>
-    <h1>ekhadley.net</h1>
-    <p><a href="/frigbot" id="frigbot-link" class="nav-link">Frigbot Monitor</a></p>
+    <div class="center">
+        <h1>ekhadley</h1>
+        <hr class="divider">
+        <a href="/frigbot" id="frigbot-link" class="nav-link">frigbot</a>
+    </div>
     <script>
         // Preserve key parameter when navigating to frigbot monitor
         const urlParams = new URLSearchParams(window.location.search);
