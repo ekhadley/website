@@ -1,7 +1,7 @@
 import os
 
 import flask
-from flask import Flask, abort
+from flask import Flask, abort, render_template
 
 import frigbot
 
@@ -14,8 +14,9 @@ auth_token = os.getenv("AUTH")
 
 @app.route("/")
 def index():
-    return flask.send_file("./frontend/static/index.html")
-    #return "Hello World!"
+    key = flask.request.args.get('key')
+    authed = key == auth_token
+    return render_template("index.html", authed=authed, key=key)
 
 @app.route("/frigbot")
 def frigbot_route():
