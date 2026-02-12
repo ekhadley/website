@@ -12,6 +12,8 @@
         body { padding: 20px; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         h1 { display: flex; align-items: center; gap: 10px; }
         .log-container { flex: 1; height: calc(100% - 90px); overflow-y: auto; }
+        .tab-content { display: none; flex: 1; min-height: 0; }
+        .tab-content.active { display: flex; }
     </style>
 </head>
 <body>
@@ -26,7 +28,11 @@
         {% endif %}
         <a href="/" id="home-link" class="nav-link">← Back to Home</a>
     </div>
-    <div class="main-content">
+    <div class="tab-bar">
+        <button class="tab active" data-tab="logs">Logs</button>
+        <button class="tab" data-tab="memories">Memories</button>
+    </div>
+    <div class="tab-content main-content active" id="tab-logs">
         <div class="left-sidebar">
             <div class="filter-section">
                 <h3>Search</h3>
@@ -131,6 +137,13 @@
         </div>
         <div class="log-container {% if error %}error{% endif %}">{{ log_content }}</div>
     </div>
+    <div class="tab-content" id="tab-memories">
+        <div class="memory-list"></div>
+        <div class="memory-content">
+            <div class="memory-placeholder">Select a memory file to view</div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="/static/js/frigbot.js"></script>
 </body>
 </html>

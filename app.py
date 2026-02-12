@@ -56,5 +56,19 @@ def frigbot_logs_chunk():
             "error": "Invalid offset or limit parameter"
         }), 400
 
+@app.route("/api/frigbot/memories")
+def frigbot_memories_list():
+    provided_key = flask.request.args.get('key')
+    if provided_key != auth_token:
+        abort(403)
+    return flask.jsonify(frigbot.list_memories())
+
+@app.route("/api/frigbot/memories/<filename>")
+def frigbot_memory_content(filename):
+    provided_key = flask.request.args.get('key')
+    if provided_key != auth_token:
+        abort(403)
+    return flask.jsonify(frigbot.get_memory(filename))
+
 if __name__ == "__main__":
     app.run(host="localhost", port=8000)

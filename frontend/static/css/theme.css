@@ -317,6 +317,91 @@ h1 {
     padding-right: 10px;
 }
 
+/* ── Tab Bar ── */
+.tab-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 15px;
+    border-bottom: var(--border-width) solid var(--border);
+}
+.tab {
+    padding: 8px 20px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-main);
+    font-size: 14px;
+    cursor: pointer;
+    transition: color var(--transition), border-color var(--transition);
+}
+.tab:hover { color: var(--text); }
+.tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+/* ── Memories Tab ── */
+#tab-memories {
+    gap: 20px;
+    align-items: stretch;
+}
+.memory-list {
+    flex: 0 0 25%;
+    overflow-y: auto;
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--surface);
+}
+.memory-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    transition: background-color var(--transition), color var(--transition);
+}
+.memory-item:hover { background-color: var(--surface-alt); color: var(--text); }
+.memory-item.active { background-color: var(--border); color: var(--accent); }
+.memory-content {
+    flex: 1;
+    overflow-y: auto;
+    border: var(--border-width) solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--surface);
+    padding: 20px 30px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+.memory-placeholder { color: var(--text-secondary); }
+.memory-content h1, .memory-content h2, .memory-content h3 { color: var(--accent); margin: 1em 0 0.5em; }
+.memory-content h1 { font-size: 22px; }
+.memory-content h2 { font-size: 18px; }
+.memory-content h3 { font-size: 15px; }
+.memory-content p { margin-bottom: 0.8em; }
+.memory-content code {
+    background-color: var(--bg);
+    padding: 2px 6px;
+    border-radius: var(--radius);
+    font-size: 13px;
+}
+.memory-content pre {
+    background-color: var(--bg);
+    padding: 12px;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    margin-bottom: 1em;
+}
+.memory-content pre code { padding: 0; background: none; }
+.memory-content ul, .memory-content ol { padding-left: 1.5em; margin-bottom: 0.8em; }
+.memory-content a { color: var(--accent); }
+.memory-content blockquote {
+    border-left: 3px solid var(--accent);
+    padding-left: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 0.8em;
+}
+
 /* ── Index page center layout ── */
 .center {
     text-align: center;

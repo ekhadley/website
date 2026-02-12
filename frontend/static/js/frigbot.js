@@ -346,3 +346,74 @@ function updateToggleAllButton() {
 
     toggleAllButton.textContent = allChecked ? 'Deselect All' : 'Select All';
 }
+
+// ── Tab Switching ──
+
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+
+        // Load memories on first switch
+        if (tab.dataset.tab === 'memories' && !memoriesLoaded) {
+            loadMemories();
+        }
+    });
+});
+
+// ── Memories ──
+
+let memoriesLoaded = false;
+
+async function loadMemories() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const key = urlParams.get('key') || '';
+    const list = document.querySelector('.memory-list');
+    list.innerHTML = '<div class="memory-placeholder" style="padding:15px;">Loading...</div>';
+
+    const response = await fetch(`/api/frigbot/memories?key=${encodeURIComponent(key)}`);
+    const data = await response.json();
+
+    if (data.error) {
+        list.innerHTML = `<div class="memory-placeholder" style="padding:15px;">${data.error}</div>`;
+        return;
+    }
+
+    list.innerHTML = '';
+    data.files.forEach(filename => {
+        const item = document.createElement('div');
+        item.className = 'memory-item';
+        item.textContent = filename.replace(/\.md$/, '');
+        item.addEventListener('click', () => loadMemoryContent(filename, item));
+        list.appendChild(item);
+    });
+
+    if (data.files.length === 0) {
+        list.innerHTML = '<div class="memory-placeholder" style="padding:15px;">No memory files found.</div>';
+    }
+
+    memoriesLoaded = true;
+}
+
+async function loadMemoryContent(filename, item) {
+    // Highlight active item
+    document.querySelectorAll('.memory-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+
+    const content = document.querySelector('.memory-content');
+    content.innerHTML = '<div class="memory-placeholder">Loading...</div>';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const key = urlParams.get('key') || '';
+    const response = await fetch(`/api/frigbot/memories/${encodeURIComponent(filename)}?key=${encodeURIComponent(key)}`);
+    const data = await response.json();
+
+    if (data.error) {
+        content.innerHTML = `<div class="memory-placeholder">${data.error}</div>`;
+        return;
+    }
+
+    content.innerHTML = marked.parse(data.content);
+}

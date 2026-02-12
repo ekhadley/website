@@ -9,6 +9,7 @@ import flask
 from flask import abort
 
 LOG_FILE_DIR = "/home/ek/wgmn/frigbot/logs"
+MEMORIES_DIR = "/home/ek/wgmn/frigbot/memories"
 auth_token = os.getenv("AUTH")
 
 def get_latest_log_file():
@@ -168,6 +169,23 @@ def format_time_since(start_time):
     seconds = total_seconds % 60
     
     return f"{days}d {hours}h {minutes}m {seconds}s"
+
+def list_memories():
+    """Returns a list of markdown filenames in the memories directory."""
+    try:
+        files = sorted(f for f in os.listdir(MEMORIES_DIR) if f.endswith('.md'))
+        return {"files": files}
+    except FileNotFoundError:
+        return {"files": [], "error": "Memories directory not found."}
+
+def get_memory(filename):
+    """Returns the content of a specific memory file."""
+    # Prevent path traversal
+    if '/' in filename or '\\' in filename or '..' in filename:
+        return {"error": "Invalid filename."}
+    filepath = os.path.join(MEMORIES_DIR, filename)
+    with open(filepath, "r") as f:
+        return {"filename": filename, "content": f.read()}
 
 def route():
     # Check authorization token
