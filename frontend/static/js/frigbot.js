@@ -8,7 +8,8 @@ const state = {
     totalLines: 0,
     chunkSize: 100,
     allRows: [], // Store all rendered rows for filtering
-    isFirstLoad: true // Track if this is the very first chunk load
+    isFirstLoad: true, // Track if this is the very first chunk load
+    knownEventTypes: new Set() // Track discovered event types
 };
 
 // Initialize on page load
@@ -150,6 +151,7 @@ function renderLogLines(lines, startOffset) {
             // Store level and event type for filtering
             row.dataset.level = level.toLowerCase();
             row.dataset.eventType = eventType;
+            addEventType(eventType);
 
             // For message logs, try to extract the actual message content
             if (level === 'INFO' && logEntry.data && logEntry.data.content) {
@@ -163,10 +165,15 @@ function renderLogLines(lines, startOffset) {
                 ? message.substring(0, maxLength) + '...'
                 : message;
 
+            const eventBadge = eventType
+                ? `<span class="log-event" style="color:${eventColor(eventType)};border-color:${eventColor(eventType)}">${escapeHtml(eventType)}</span>`
+                : '';
+
             summary.innerHTML = `
                 <span class="log-toggle">▶</span>
                 <span class="log-timestamp">${escapeHtml(timestamp)}</span>
                 <span class="log-level log-level-${level.toLowerCase()}">${escapeHtml(level)}</span>
+                ${eventBadge}
                 <span class="log-message">${escapeHtml(truncatedMessage)}</span>
             `;
 
@@ -223,6 +230,37 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// Deterministic color for event type badges
+const EVENT_COLORS = [
+    '#a8c878', '#78b8c8', '#c8a878', '#c878a8',
+    '#88a8d8', '#d8a888', '#88c8a8', '#b898c8',
+    '#c8c878', '#78c8c8', '#c89878', '#a878c8',
+];
+function eventColor(eventType) {
+    let hash = 0;
+    for (let i = 0; i < eventType.length; i++) hash = ((hash << 5) - hash + eventType.charCodeAt(i)) | 0;
+    return EVENT_COLORS[Math.abs(hash) % EVENT_COLORS.length];
+}
+
+// Add a new event type checkbox if not already present
+function addEventType(eventType) {
+    if (!eventType || state.knownEventTypes.has(eventType)) return;
+    state.knownEventTypes.add(eventType);
+
+    const container = document.getElementById('event-checkboxes');
+    const label = document.createElement('label');
+    label.className = 'event-filter';
+    label.innerHTML = `
+        <input type="checkbox" class="event-checkbox" data-event="${escapeHtml(eventType)}" checked>
+        <span class="event-label">${escapeHtml(eventType)}</span>
+    `;
+    label.querySelector('input').addEventListener('change', () => {
+        updateToggleAllButton();
+        applyFilters();
+    });
+    container.appendChild(label);
 }
 
 // Apply filters to log rows
@@ -298,25 +336,12 @@ function setupFilters() {
         checkbox.addEventListener('change', applyFilters);
     });
 
-    // Event type checkboxes
-    const eventCheckboxes = document.querySelectorAll('.event-checkbox');
-    eventCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', () => {
-            updateToggleAllButton();
-            applyFilters();
-        });
-    });
-
     // Clear filters button
     const clearButton = document.getElementById('clear-filters');
     clearButton.addEventListener('click', () => {
         searchInput.value = '';
-        levelCheckboxes.forEach(checkbox => {
-            checkbox.checked = true;
-        });
-        eventCheckboxes.forEach(checkbox => {
-            checkbox.checked = true;
-        });
+        levelCheckboxes.forEach(checkbox => { checkbox.checked = true; });
+        document.querySelectorAll('.event-checkbox').forEach(cb => { cb.checked = true; });
         updateToggleAllButton();
         applyFilters();
     });
@@ -324,12 +349,9 @@ function setupFilters() {
     // Toggle all events button
     const toggleAllButton = document.getElementById('toggle-all-events');
     toggleAllButton.addEventListener('click', () => {
-        const allChecked = Array.from(eventCheckboxes).every(cb => cb.checked);
-
-        eventCheckboxes.forEach(checkbox => {
-            checkbox.checked = !allChecked;
-        });
-
+        const boxes = document.querySelectorAll('.event-checkbox');
+        const allChecked = Array.from(boxes).every(cb => cb.checked);
+        boxes.forEach(cb => { cb.checked = !allChecked; });
         updateToggleAllButton();
         applyFilters();
     });

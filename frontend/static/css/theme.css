@@ -189,6 +189,16 @@ h1 {
     min-width: 60px;
     text-align: center;
 }
+.log-event {
+    padding: 2px 8px;
+    border-radius: var(--radius);
+    font-size: 11px;
+    min-width: 60px;
+    text-align: center;
+    background: transparent;
+    border: 1px solid;
+    white-space: nowrap;
+}
 .log-message {
     color: var(--text);
     flex: 1;
